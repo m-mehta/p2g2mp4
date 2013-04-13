@@ -66,10 +66,10 @@ def concat_jpgs(filenames):
 	os.system("rm filelist.txt")
 def make_mp4_from_jpg(filename, length):
 	outname = filename[0:-3]+'mp4'
-	cmd = "./ffmpeg -loop 1 -f image2 -i %s -an -vcodec libx264 -pix_fmt yuv420p -r 5 -t %s -y %s" % (filename,length,outname)
+	cmd = "./ffmpeg -loop 1 -f image2 -i \'%s\' -an -vcodec libx264 -pix_fmt yuv420p -r 5 -t %s -y \'%s\'" % (filename,length,outname)
 	os.system(cmd)
 def make_audio(video):
-	cmd = "./ffmpeg -i %s -vn -acodec copy audio.wma" % video
+	cmd = "./ffmpeg -i \'%s\' -vn -acodec copy audio.wma" % video
 	os.system(cmd)	
 
 def make_full_mp4(filenames, lengths, video, delay, outname):
@@ -77,7 +77,7 @@ def make_full_mp4(filenames, lengths, video, delay, outname):
 		make_mp4_from_jpg(filenames[i],lengths[i])
 	concat_jpgs(filenames)
 	make_audio(video)
-	cmd = "./ffmpeg -i video.mp4 -itsoffset %s -i audio.wma -vcodec copy -strict -2 %s" % (delay,outname)
+	cmd = "./ffmpeg -i video.mp4 -itsoffset %s -i audio.wma -vcodec copy -strict -2 \'%s\'" % (delay,outname)
 	print cmd
 	os.system(cmd)
 	os.system("rm video.mp4")
@@ -87,7 +87,7 @@ def main():
 	basedir = './'
 
 	file_dir = 'Content/'
-	xml_file = 'MediasitePresentation_50.xml'
+	xml_file = 'MediasitePresentation_60.xml'
 	outname = 'lecture.mp4'
 	
 	if len(sys.argv)==2:
@@ -108,8 +108,9 @@ def main():
 	fid.close()
 	
 	times = getAllBlocks(getFirstBlock(xml, 'Slides'),'Time',int)
-	video_file = getFirstBlock(xml, 'OnDemandFileName')
-	total_length = getFirstBlock(xml,'MediaLength',int)
+	video_data = getFirstBlock(xml, 'OnDemandContentList')
+	video_file = getFirstBlock(video_data, 'FileName')
+	total_length = getFirstBlock(video_data,'Length',int)
 	
 	video_file = file_dir+video_file
 	file_list = make_filelist(len(times),file_dir)
